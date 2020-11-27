@@ -32,6 +32,9 @@ const Gradient = styled(LinearGradient)`
 `;
 
 const Home = () => {
+
+  const movies = require('../assets/Movies.json');
+  
   return (
     <>
       <StatusBar
@@ -53,8 +56,8 @@ const Home = () => {
             <Hero />
           </Gradient>
         </Poster>
-        <Movies label="Recomendados" item={api} />
-        <Movies label="Top 10" item={api} />
+        <Movies label="Recomendados" data={movies} />
+        <Movies label="Top 10" data={movies} />
       </Container>
     </>
   );

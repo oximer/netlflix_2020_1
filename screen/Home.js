@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {StatusBar, Dimensions} from 'react-native';
 
@@ -9,13 +9,8 @@ import styled from 'styled-components/native';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Movies from '../components/Movies';
+import {filterByCountry, getLocation} from '../services/movieFilter';
 
-const api = [
-  require('../assets/movies/movie1.jpg'),
-  require('../assets/movies/movie2.jpg'),
-  require('../assets/movies/movie3.jpg'),
-  require('../assets/movies/movie4.jpg'),
-];
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -32,8 +27,51 @@ const Gradient = styled(LinearGradient)`
 `;
 
 const Home = () => {
+  const [movies, setMovies] = useState([]);
+  const [nationalMovies, setNationalMovies] = useState([]);
+  const [position, setPosition] = useState(null);
 
-  const movies = require('../assets/Movies.json');
+  useEffect(() => {
+
+    const obtainLocation = async () => {
+      try {
+        const result = await getLocation();
+        console.log('localizacao', result)
+        setPosition(result);
+      } catch (error) {
+        console.log('obtainLocation error', error);
+      }
+    };
+  
+    obtainLocation();
+  }, []);
+  
+  useEffect(() => {
+    const loadingMovies = async () => {
+      const moviesJson = require('../assets/Movies.json');
+      let nationalMovies = [];
+  
+      try {
+        if (position !== null) {
+          nationalMovies = await filterByCountry(moviesJson, position);
+          setNationalMovies(nationalMovies);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  
+      const nationalMoviesTitles = nationalMovies.map(
+        (item) => item.Title,
+      );
+  
+      moviesWithoutNationals = moviesJson.filter((item, index) => {
+        return !nationalMoviesTitles.includes(item.Title);
+      });
+  
+      setMovies(moviesWithoutNationals);
+    };
+    loadingMovies();
+  }, [position]);
   
   return (
     <>
@@ -58,7 +96,10 @@ const Home = () => {
         </Poster>
         <Movies label="Recomendados" data={movies} />
         <Movies label="Top 10" data={movies} />
-      </Container>
+        {nationalMovies && nationalMovies.length > 0 && (
+              <Movies label="Nacionais" data={nationalMovies} />
+        )}
+        </Container>
     </>
   );
 };

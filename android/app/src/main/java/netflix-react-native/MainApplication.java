@@ -61,7 +61,8 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected @Nullable String getBundleAssetName() {
       return super.getBundleAssetName();
-    };
+    }
+  };
 
   @Override
   public ReactNativeHost getReactNativeHost() {
